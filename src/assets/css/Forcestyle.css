@@ -1,0 +1,74 @@
+.remenberpwd .van-checkbox__label {
+    color: #878787 !important;
+}
+
+.user_pwd_input .van-icon {
+    font-size: 20px !important;
+    color: #b6afaf;
+}
+
+.register_warp .van-field__left-icon {
+    width: 45px;
+    text-align: center;
+}
+
+.van-field__right-icon .van-ellipsis {
+    display: none;
+}
+
+.question_div .questionanstitle input {
+    padding-left: 50px;
+}
+
+.findpwd_content .van-step--horizontal .van-step__line {
+    height: 2px;
+}
+
+.findpwd .van-icon {
+    font-size: 20px !important;
+    color: #b6afaf;
+}
+
+.findpwd .van-field__left-icon {
+    width: 45px;
+    text-align: center;
+}
+
+.user_pwd_input .question_div .questionanstitle input {
+    padding-left: 50px;
+}
+
+.activeicon {
+    color: #1195db !important;
+}
+
+.header_title {
+    background-color: #1989fa;
+}
+
+.van-nav-bar__title {
+    color: white !important;
+}
+
+.van-grid-item .van-grid-item__content {
+    border-radius: 10px;
+}
+
+.PrizeMoudle .van-dialog__content {
+    height: 150px;
+    text-align: center;
+    padding: 10px;
+}
+
+.winner_list .van-collapse-item__content {
+    padding: 0px !important;
+}
+
+
+/* .van-overlay {
+    animation-duration: 0s !important;
+}
+
+.van-popup .van-popup--top .van-dropdown-item__content {
+    transition-duration: 0s !important;
+} */
