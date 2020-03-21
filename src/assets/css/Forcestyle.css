@@ -64,6 +64,18 @@
     padding: 0px !important;
 }
 
+.shop_item .van-grid-item__content {
+    border-radius: 10px;
+    border: 1px solid #ffffff;
+    overflow: hidden;
+    box-shadow: 0 0 3px 2px #f2f2f2;
+}
+
+.address_warp .van-address-item,
+.address_warp .van-address-item .van-cell--borderless {
+    background-color: #f7f7f7;
+}
+
 
 /* .van-overlay {
     animation-duration: 0s !important;

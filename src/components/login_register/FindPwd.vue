@@ -2,7 +2,7 @@
  * @Author: GOOGOLX
  * @Date: 2020-03-10 14:35:54
  * @LastEditors: GOOGOLX
- * @LastEditTime: 2020-03-12 11:30:38
+ * @LastEditTime: 2020-03-14 15:49:43
  * @Description: 找回密码
  -->
 <!--  -->
@@ -28,7 +28,7 @@
         <div class="account" v-if="active==0">
           <span class="user_title">输入账号</span>
           <van-field
-            v-model="username"
+            v-model="formdate.userName"
             clearable
             required
             placeholder="输入要找回密码的账号"
@@ -38,7 +38,7 @@
         <div class="question_div" v-if="active==1">
           <span class="user_title">密保问题</span>
           <van-field
-            v-model="question"
+            v-model="formdate.issue"
             clearable
             required
             readonly
@@ -46,7 +46,7 @@
             left-icon="el-input__icon el-iconiconfontanquan"
           />
           <van-field
-            v-model="pwdquestionans"
+            v-model="formdate.answer"
             clearable
             placeholder="请输入密保答案"
             class="questionanstitle"
@@ -55,9 +55,10 @@
         <div class="password_div" v-if="active==2">
           <span class="user_title">修改密码</span>
           <van-field
-            v-model="password"
+            v-model="formdate.pwd"
             clearable
             required
+            :type="showicon?'password':''"
             placeholder="输入新的密码"
             left-icon="el-input__icon el-iconsuo"
             ref="password"
@@ -67,9 +68,10 @@
             </slot>
           </van-field>
           <van-field
-            v-model="passwordsure"
+            v-model="formdate.passwordsure"
             clearable
             required
+            :type="sureicon?'password':''"
             placeholder="确认新的密码"
             left-icon="el-input__icon el-iconsuo"
             ref="passwordsure"
@@ -88,7 +90,7 @@
           </span>
         </div>
       </div>
-        <!---->
+      <!---->
       <div class="next_but">
         <van-button
           type="info"
@@ -115,11 +117,14 @@ export default {
   data() {
     return {
       active: 0,
-      username: "",
-      question: "",
-      pwdquestionans: "",
-      password: "",
-      passwordsure: "",
+      formdate: {
+        userName: "",
+        issue: "",
+        answer: "",
+        pwd: "",
+        passwordsure: ""
+      },
+      answer: "",
       openeyes: "van-icon el-input__icon el-iconyanjing activeicon",
       closeeyes: "van-icon van-icon-closed-eye",
       sureicon: true,
@@ -142,10 +147,55 @@ export default {
         this.$router.push("/login");
         return;
       }
-      this.active++;
+      if (this.active === 0) {
+        this.$http.post("user/get", this.formdate).then(res => {
+          const { code, data, message } = res.data;
+          if (code === "200") {
+            this.active++;
+            this.formdate.issue = data.issue;
+            this.answer = data.answer;
+            return;
+          } else {
+            this.$toast(message);
+            return;
+          }
+        });
+      }
+      if (this.active === 1) {
+        if (this.answer === this.formdate.answer) {
+          this.active++;
+          this.butText = "确定";
+          return;
+        } else {
+          this.$toast("问题密码不正确");
+          return;
+        }
+      }
       if (this.active === 2) {
-        this.butText = "确定";
-      } else if (this.active === 3) {
+        if (this.formdate.pwd === "") {
+          this.$refs.password.focus();
+          return;
+        }
+        if (this.formdate.passwordsure === "") {
+          this.$refs.passwordsure.focus();
+          return;
+        }
+        if (this.formdate.pwd === this.formdate.passwordsure) {
+          this.$http.post("user/update/pwd", this.formdate).then(res => {
+            const { message, code, data, count } = res.data;
+            if (code == "200") {
+              this.active++;
+            } else {
+              this.$toast(message);
+              return;
+            }
+          });
+        } else {
+          this.$toast("两次密码不相同");
+          return;
+        }
+      }
+      if (this.active === 3) {
         setInterval(() => {
           if (this.scoend != 0) {
             this.scoend--;

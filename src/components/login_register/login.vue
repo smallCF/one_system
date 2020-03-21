@@ -2,7 +2,7 @@
  * @Author: GOOGOLX
  * @Date: 2020-03-08 10:50:39
  * @LastEditors: GOOGOLX
- * @LastEditTime: 2020-03-12 09:15:04
+ * @LastEditTime: 2020-03-14 21:02:35
  * @Description: 登录组件组件
  -->
 <template>
@@ -12,9 +12,14 @@
       <div class="logo-img"></div>
       <van-cell-group>
         <div class="user_pwd_input">
-          <van-field v-model="username" clearable placeholder="请输入用户名" left-icon="contact" />
           <van-field
-            v-model="password"
+            v-model="formdata.userName"
+            clearable
+            placeholder="请输入用户名"
+            left-icon="contact"
+          />
+          <van-field
+            v-model="formdata.pwd"
             clearable
             :type="passwordtype"
             :right-icon="showicon"
@@ -59,8 +64,10 @@
 export default {
   data() {
     return {
-      username: "",
-      password: "",
+      formdata: {
+        userName: "",
+        pwd: ""
+      },
       showicon: "closed-eye",
       passwordtype: "password",
       checked: false
@@ -68,7 +75,13 @@ export default {
   },
   beforeCreate() {},
   //生命周期 - 创建完成（访问当前this实例）
-  created() {},
+  created() {
+    this.checked = localStorage.getItem("remeber") == "false" ? false : true;
+    if (this.checked) {
+      this.formdata.userName = localStorage.getItem("userinfo");
+      this.formdata.pwd = localStorage.getItem("pwd");
+    }
+  },
   //生命周期 - 挂载完成（访问DOM元素）
   mounted() {},
   //方法(函数)
@@ -84,7 +97,7 @@ export default {
         this.passwordtype = "text";
         this.showicon = " el-input__icon el-iconyanjing activeicon";
         setTimeout(() => {
-          if(this.passwordtype==="text"){
+          if (this.passwordtype === "text") {
             this.passwordtype = "password";
             this.showicon = "closed-eye";
             this.$refs.password.focus();
@@ -95,46 +108,36 @@ export default {
         this.showicon = "closed-eye";
       }
     },
-    onClickButtonSubmit: function(e, username, password) {
-      if (this.username == "") {
+    async onClickButtonSubmit() {
+      if (this.formdata.userName == "") {
         this.$toast("用户名不能为空");
         return false;
       }
-      if (this.password == "") {
+      if (this.formdata.pwd == "") {
         this.$toast("密码不能为空");
         return false;
       } else {
-        var that = this; // 放置指针，便于then操作的获取
-
-        this.$http
-          .get("接口地址", {
-            params: {
-              userName: this.username
-            }
-          })
-          .then(
-            function(response) {
-              console.log(response);
-              var reslutData = response;
-              console.log(reslutData.data.status);
-              if (reslutData.data.status == 1002) {
-                this.$toast(reslutData.data.desc);
-              }
-              if (reslutData.data.status == 1000) {
-                this.$toast(reslutData.data.desc);
-                this.$router.push({
-                  path: "/receData",
-                  query: {
-                    reslutData
-                  }
-                });
-              }
-            }.bind(this)
-          )
-          .catch(function(error) {
-            console.log("请求失败" + error);
-          });
-        e.preventDefault();
+        var that = this; // 放置指针，便于then操作的获取x
+        const res = await this.$http.post("user/login", this.formdata);
+        const { code, count, message, toKen, data } = res.data;
+        if (code === "200") {
+          if (this.checked) {
+            localStorage.setItem("userinfo", data.userName);
+            localStorage.setItem("pwd", this.formdata.pwd);
+            localStorage.setItem("userId",data.id);
+          } else {
+            localStorage.removeItem("userinfo");
+            localStorage.removeItem("pwd");
+            localStorage.removeItem("userId");
+          }
+          localStorage.setItem("remeber", this.checked);
+          localStorage.setItem("Token", toKen);
+          localStorage.setItem("UserDate", JSON.stringify(data));
+          this.$router.push("/home");
+          this.$toast.success("登录成功");
+        } else {
+          this.$toast.fail(message);
+        }
       }
     },
     validEmail: function(password) {

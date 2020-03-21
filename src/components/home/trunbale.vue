@@ -2,8 +2,8 @@
  * @Author: GOOGOLX
  * @Date: 2020-03-12 11:42:54
  * @LastEditors: GOOGOLX
- * @LastEditTime: 2020-03-13 10:53:56
- * @Description: 
+ * @LastEditTime: 2020-03-14 19:17:27
+ * @Description: 转盘组件
  -->
 <!-- 转盘组件 -->
 <template>
@@ -12,6 +12,7 @@
       <div id="rotary-table">
         <div
           v-for="(award,index) in awards"
+          :key="index"
           :class="current===index?'award award_'+index+' active': 'award award_'+index"
         >
           <van-image src="https://img.yzcdn.cn/vant/apple-1.jpg" />
@@ -46,14 +47,23 @@
         <li>5、最终解释权归发布者所有。</li>
       </ul>
     </div>
-    <!--中将后组件-->
+    <!--抽中后组件-->
     <van-dialog
       v-model="show"
       class="PrizeMoudle"
       :showConfirmButton="false"
       :closeOnClickOverlay="true"
     >
-      <div>1111</div>
+      <solt solt="lable" name="lable">
+        <div style="padding-bottom:5px;">
+          恭喜,抽中了
+          <span>{{award.name}}</span>
+        </div>
+      </solt>
+      <div>
+        <van-image src="https://img.yzcdn.cn/vant/apple-1.jpg"></van-image>
+        <van-button type="default" style="width:100%;" @click="show=!show">确定</van-button>
+      </div>
     </van-dialog>
   </div>
 </template>
@@ -86,25 +96,74 @@ export default {
       isstart: false,
       isonstart: false,
       show: false,
-      show1: false,
-
+      show1: true,
+      isturntable: false,
+      consume: 50,
+      countflag: false,
+      firstflag:false
     };
   },
   beforeCreate() {},
   //生命周期 - 创建完成（访问当前this实例）
-  created() {},
+  created() {
+    this.userInfo = JSON.parse(localStorage.getItem("UserDate"));
+  },
   //生命周期 - 挂载完成（访问DOM元素）
   mounted() {},
   //方法(函数)
   methods: {
-    checkPrize(num) {},
-    start() {
+    checkPrize(num) {
+      if (this.isturntable) {
+        return;
+      }
+      this.consume = num;
+    },
+    showAddress() {},
+    async start() {
       // 开始抽奖
-      this.current = 0;
-      this.drawAward();
-      this.time = Date.now();
-      this.speed = 200;
-      this.diff = 15;
+      if (!this.firstflag) {
+        const res = await this.$http.post("address/page", {
+          userId: this.userInfo.id
+        });
+        const { count } = res.data;
+        this.firstflag = true;
+        if (count > 0) {
+          this.countflag = true;
+        }
+      }
+      if (this.countflag) {
+        this.$dialog
+          .confirm({
+            message: "是否消耗" + this.consume + "金币抽奖"
+          })
+          .then(() => {
+            // on confirm
+            this.isturntable = true;
+            this.current = 0;
+            this.drawAward();
+            this.time = Date.now();
+            this.speed = 200;
+            this.diff = 15;
+            this.isstart = false;
+            this.isonstart = false;
+          })
+          .catch(() => {
+            // on cancel
+          });
+      } else {
+        this.$dialog
+          .confirm({
+            message: "暂无收货地址,请前往添加地址",
+            confirmButtonText: "前往添加"
+          })
+          .then(() => {
+            // on confirm
+            this.$router.push("address");
+          })
+          .catch(() => {
+            // on cancel
+          });
+      }
     },
     drawAward() {
       // 请求接口, 这里我就模拟请求后的数据(请求时间为2s)
@@ -132,6 +191,7 @@ export default {
           setTimeout(() => {
             console.log(this.award.name);
             this.show = true;
+            this.isturntable = false;
             // alert( '恭喜你，抽中了'   this.award.name );
           }, 0);
           return;
@@ -303,5 +363,14 @@ export default {
   right: 0px;
   bottom: 153px;
   z-index: 999;
+}
+.PrizeMoudle {
+  top: 50%;
+  height: 50%;
+  left: 50%;
+  width: 90%;
+  overflow: hidden;
+  font-size: 16px;
+  background-color: #fff;
 }
 </style>

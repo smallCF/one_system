@@ -2,7 +2,7 @@
  * @Author: GOOGOLX
  * @Date: 2020-03-08 10:50:50
  * @LastEditors: GOOGOLX
- * @LastEditTime: 2020-03-11 22:40:51
+ * @LastEditTime: 2020-03-14 23:33:38
  * @Description: 注册组件
  -->
 <template>
@@ -18,14 +18,14 @@
       <van-cell-group>
         <div class="user_pwd_input">
           <van-field
-            v-model="username"
+            v-model="formadate.userName"
             clearable
             required
             placeholder="请输入要注册的账号"
             left-icon="manager"
           />
           <van-field
-            v-model="password"
+            v-model="formadate.pwd"
             clearable
             required
             :type="showicon?passwordtype:texttype"
@@ -39,7 +39,7 @@
             </slot>
           </van-field>
           <van-field
-            v-model="passwordsure"
+            v-model="formadate.passwordsure"
             clearable
             required
             :type="sureicon?passwordtype:texttype"
@@ -47,6 +47,7 @@
             left-icon=" el-input__icon el-iconsuo"
             icon-size="20"
             ref="passwordsure"
+            @blur="yzpassword"
           >
             <slot slot="right-icon" name="right-icon">
               <i :class="sureicon?closeeyes:openeyes" @click="changepasswordtypesure()"></i>
@@ -55,7 +56,6 @@
           <!--密保问题-->
           <div class="question_div">
             <van-field
-              v-model="pwdquestion"
               clearable
               required
               left-icon=" el-input__icon el-iconiconfontanquan"
@@ -63,7 +63,7 @@
             >
               <slot slot="input" name="input">
                 <input
-                  type="password"
+                  v-model="formadate.issue"
                   icon-size="20"
                   readonly
                   placeholder="请选择密保问题"
@@ -77,16 +77,17 @@
               </slot>
             </van-field>
             <van-field
-              v-model="pwdquestionans"
+              v-model="formadate.answer"
               clearable
               required
               placeholder="请输入密保答案"
               v-if="isshowans"
+              ref="pwdquestionans"
               class="questionanstitle"
             ></van-field>
           </div>
           <van-field
-            v-model="Invitationcode"
+            v-model="formadate.invitedYards"
             clearable
             placeholder="请输入邀请码"
             right-icon="question"
@@ -123,14 +124,16 @@ export default {
   data() {
     return {
       checked: false,
-      username: "",
-      password: "",
-      passwordsure: "",
+      formadate: {
+        userName: "",
+        pwd: "",
+        passwordsure: "",
+        invitedYards: "",
+        issue: "",
+        answer: ""
+      },
       sureicon: true,
       showicon: true,
-      Invitationcode: "",
-      pwdquestion: "",
-      pwdquestionans: "",
       isshowans: false,
       passwordtype: "password",
       texttype: "text",
@@ -178,13 +181,65 @@ export default {
         this.$refs.passwordsure.focus();
       }, 2000);
     },
-    onClickButtonSubmit() {}
+    yzpassword() {
+      if (
+        this.formadate.pwd != this.formadate.passwordsure &&
+        this.formadate.passwordsure.length != ""
+      ) {
+        this.$toast("两次密码不相同");
+        this.$refs.passwordsure.focus();
+        return false;
+      }
+    },
+    async onClickButtonSubmit() {
+      if (this.formadate.userName == "") {
+        this.$toast("用户名不能为空");
+        return false;
+      }
+      if (this.formadate.pwd == "") {
+        this.$toast("密码不能为空");
+        return false;
+      }
+      if (this.formadate.passwordsure == "") {
+        this.$toast("确认密码不能为空");
+        return false;
+      }
+      if (this.formadate.pwd != this.formadate.passwordsure) {
+        this.$toast("两次密码不相同");
+        return false;
+      }
+      if (this.formadate.issue == "") {
+        this.$toast("请选择密保问题");
+        return false;
+      }
+      if (this.formadate.answer === "") {
+        this.$toast("请输入密保答案");
+        this.$refs.pwdquestionans.focus();
+        return false;
+      }
+      const res = await this.$http.post("user/signIn", this.formadate);
+      const { code, message, data, token, count } = res.data;
+      if (code === "200") {
+        this.$toast.success("注册成功");
+        this.$router.push("/login");
+      } else {
+        this.$toast.fail(message);
+        this.formadate = {
+          userName: "",
+          pwd: "",
+          passwordsure: "",
+          invitedYards: "",
+          issue: "",
+          answer: ""
+        };
+      }
+    }
   },
   watch: {
     value1(newName, oldName) {
       if (newName != -1) {
         this.isshowans = true;
-        this.pwdquestion = this.option1[newName].text;
+        this.formadate.issue = this.option1[newName].text;
       }
     }
   }

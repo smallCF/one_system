@@ -1,3 +1,10 @@
+/*
+ * @Author: GOOGOLX
+ * @Date: 2020-03-01 15:20:37
+ * @LastEditors: GOOGOLX
+ * @LastEditTime: 2020-03-14 11:55:27
+ * @Description: 
+ */
 'use strict'
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
@@ -10,7 +17,15 @@ module.exports = {
         // Paths
         assetsSubDirectory: 'static',
         assetsPublicPath: '/',
-        proxyTable: {},
+        proxyTable: {
+            // '/api': {
+            //     target: 'http://api.ngrok2.xiaomiqiu.cn/', //接口域名
+            //     changeOrigin: true, //是否跨域
+            //     pathRewrite: {
+            //         '^/api': '',
+            //     }
+            // }
+        },
 
         // Various Dev Server settings
         host: 'localhost', // can be overwritten by process.env.HOST

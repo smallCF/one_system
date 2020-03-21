@@ -2,7 +2,7 @@
  * @Author: GOOGOLX
  * @Date: 2020-03-01 15:20:37
  * @LastEditors: GOOGOLX
- * @LastEditTime: 2020-03-13 13:40:53
+ * @LastEditTime: 2020-03-14 00:07:52
  * @Description: 
  */
 import Vue from 'vue'
@@ -16,6 +16,8 @@ import UesrInfo from '@/components/UserInfo/index'
 import Address from '@/components/address/index'
 import NewAddress from '@/components/address/NewAddress'
 import Winner from '@/components/outhing/winner'
+import LuckDraw from '@/components/outhing/LuckDraw'
+import Shop from '@/components/shopping/shopping'
 
 Vue.use(Router)
 
@@ -60,5 +62,13 @@ export default new Router({
         path: "/mywinner",
         name: "Winner",
         component: Winner
+    }, {
+        path: "/luckdraw",
+        name: "LuckDraw",
+        component: LuckDraw
+    }, {
+        path: "/shopping",
+        name: "Shop",
+        component: Shop
     }]
 })
